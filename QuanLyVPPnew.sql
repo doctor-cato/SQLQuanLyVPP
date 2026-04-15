@@ -231,3 +231,194 @@ FROM Customers C
 JOIN Orders O ON C.CustomerID = O.CustomerID
 JOIN OrderDetails OD ON O.OrderID = OD.OrderID
 JOIN Products P ON OD.ProductID = P.ProductID;
+USE QL_VanPhongPham;
+GO
+
+/* =================================================================================
+   1. VIEW (TỐI THIỂU 03 VIEW)
+   Dùng để truy vấn các báo cáo thống kê phức tạp một cách nhanh chóng.
+================================================================================= */
+
+-- View 1: Báo cáo doanh số bán hàng theo tháng của từng loại văn phòng phẩm
+-- Phục vụ yêu cầu: "Theo dõi doanh số bán hàng theo tháng của từng loại văn phòng"[cite: 26].
+CREATE VIEW v_DoanhThuTheoThang AS
+SELECT 
+    MONTH(o.OrderDate) AS Thang,
+    YEAR(o.OrderDate) AS Nam,
+    p.ProductID,
+    p.ProductName,
+    SUM(od.Quantity * od.PriceAtPurchase) AS TongDoanhThu
+FROM Orders o
+JOIN OrderDetails od ON o.OrderID = od.OrderID
+JOIN Products p ON od.ProductID = p.ProductID
+GROUP BY MONTH(o.OrderDate), YEAR(o.OrderDate), p.ProductID, p.ProductName;
+GO
+
+-- View 2: Báo cáo danh sách các mặt hàng tồn kho
+-- Phục vụ yêu cầu: "Báo cáo danh sách các mặt hàng tồn kho theo tháng để phục vụ cho kế hoạch nhập hàng"[cite: 29].
+CREATE VIEW v_HangTonKho AS
+SELECT 
+    ProductID, 
+    ProductName, 
+    Unit, 
+    NoiSanXuat, 
+    SoLuongTon
+FROM Products
+WHERE SoLuongTon > 0;
+GO
+
+-- View 3: Danh sách khách hàng và tổng tiền mua hàng của họ theo từng tháng
+-- Phục vụ yêu cầu tìm kiếm khách hàng mang lại doanh thu lớn nhất trong tháng[cite: 28].
+CREATE VIEW v_DoanhThuKhachHang AS
+SELECT 
+    c.CustomerID,
+    c.CustomerName,
+    MONTH(o.OrderDate) AS Thang,
+    YEAR(o.OrderDate) AS Nam,
+    SUM(od.Quantity * od.PriceAtPurchase) AS TongTienMua
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+JOIN OrderDetails od ON o.OrderID = od.OrderID
+GROUP BY c.CustomerID, c.CustomerName, MONTH(o.OrderDate), YEAR(o.OrderDate);
+GO
+
+
+/* =================================================================================
+   2. STORED PROCEDURE (TỐI THIỂU 03 STORED PROCEDURE)
+   Thực thi các nghiệp vụ cần tham số đầu vào.
+================================================================================= */
+
+-- Procedure 1: Tìm kiếm thông tin văn phòng phẩm theo nơi sản xuất
+-- Phục vụ yêu cầu: "Tìm kiếm thông tin văn phòng phẩm theo nơi sản xuất"[cite: 21].
+CREATE PROCEDURE sp_TimKiemVPP_TheoNoiSanXuat
+    @NoiSanXuat NVARCHAR(100)
+AS
+BEGIN
+    SELECT ProductID, ProductName, Unit, Price, NoiSanXuat, SoLuongTon
+    FROM Products
+    WHERE NoiSanXuat LIKE '%' + @NoiSanXuat + '%';
+END;
+GO
+
+-- Procedure 2: Báo cáo danh sách nhà cung cấp và số lượng mặt hàng đã cung cấp trong một tháng/năm
+-- Phục vụ yêu cầu: "Báo cáo danh sách các nhà cung cấp và số lượng các mặt hàng đã cung cấp trong tháng/năm"[cite: 30].
+CREATE PROCEDURE sp_ThongKeNCC_ThangNam
+    @Thang INT,
+    @Nam INT
+AS
+BEGIN
+    SELECT 
+        s.SupplierID,
+        s.SupplierName,
+        SUM(iod.Quantity) AS TongSoLuongCungCap
+    FROM Suppliers s
+    JOIN ImportOrders io ON s.SupplierID = io.SupplierID
+    JOIN ImportOrderDetails iod ON io.ImportID = iod.ImportID
+    WHERE MONTH(io.ImportDate) = @Thang AND YEAR(io.ImportDate) = @Nam
+    GROUP BY s.SupplierID, s.SupplierName;
+END;
+GO
+
+-- Procedure 3: Danh sách các mặt hàng bán được nhiều nhất trong một tháng cụ thể
+-- Phục vụ yêu cầu: "Danh sách các mặt hàng bán được nhiều nhất trong tháng"[cite: 24].
+CREATE PROCEDURE sp_MatHangBanChayTrongThang
+    @Thang INT,
+    @Nam INT
+AS
+BEGIN
+    SELECT TOP 5 
+        p.ProductID,
+        p.ProductName,
+        SUM(od.Quantity) AS TongSoLuongBan
+    FROM Products p
+    JOIN OrderDetails od ON p.ProductID = od.ProductID
+    JOIN Orders o ON od.OrderID = o.OrderID
+    WHERE MONTH(o.OrderDate) = @Thang AND YEAR(o.OrderDate) = @Nam
+    GROUP BY p.ProductID, p.ProductName
+    ORDER BY TongSoLuongBan DESC;
+END;
+GO
+
+
+/* =================================================================================
+   3. FUNCTION (TỐI THIỂU 03 FUNCTION)
+   Trả về các giá trị tính toán để có thể nhúng vào các câu lệnh SELECT khác.
+================================================================================= */
+
+-- Function 1: Hàm tính tổng doanh thu bán hàng của cửa hàng trong một tháng/năm cụ thể
+CREATE FUNCTION fn_TongDoanhThuThang (@Thang INT, @Nam INT)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    DECLARE @TongDoanhThu DECIMAL(18,2);
+    SELECT @TongDoanhThu = SUM(od.Quantity * od.PriceAtPurchase)
+    FROM Orders o
+    JOIN OrderDetails od ON o.OrderID = od.OrderID
+    WHERE MONTH(o.OrderDate) = @Thang AND YEAR(o.OrderDate) = @Nam;
+    
+    RETURN ISNULL(@TongDoanhThu, 0);
+END;
+GO
+
+-- Function 2: Hàm tính tổng số lượng hàng đã nhập từ một nhà cung cấp cụ thể
+CREATE FUNCTION fn_TongSLNhap_NCC (@SupplierID INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @TongSL INT;
+    SELECT @TongSL = SUM(iod.Quantity)
+    FROM ImportOrders io
+    JOIN ImportOrderDetails iod ON io.ImportID = iod.ImportID
+    WHERE io.SupplierID = @SupplierID;
+    
+    RETURN ISNULL(@TongSL, 0);
+END;
+GO
+
+-- Function 3: Hàm kiểm tra số lượng tồn kho hiện tại của một sản phẩm bất kỳ
+CREATE FUNCTION fn_KiemTraTonKho (@ProductID INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @TonKho INT;
+    SELECT @TonKho = SoLuongTon
+    FROM Products
+    WHERE ProductID = @ProductID;
+    
+    RETURN ISNULL(@TonKho, 0);
+END;
+GO
+
+
+/* =================================================================================
+   4. TRIGGER (TỐI THIỂU 02 TRIGGER)
+   Tự động hóa các nghiệp vụ đảm bảo tính toàn vẹn dữ liệu.
+================================================================================= */
+
+-- Trigger 1: Tự động trừ số lượng tồn kho khi có hóa đơn bán hàng mới
+-- Phục vụ yêu cầu: "Cửa hàng muốn thực hiện tự động khi một đơn hàng được bán ra số lượng sẽ được trừ tự động phục vụ việc tính tồn kho"[cite: 31].
+CREATE TRIGGER trg_TruTonKho_KhiBan
+ON OrderDetails
+AFTER INSERT
+AS
+BEGIN
+    UPDATE p
+    SET p.SoLuongTon = p.SoLuongTon - i.Quantity
+    FROM Products p
+    JOIN inserted i ON p.ProductID = i.ProductID;
+END;
+GO
+
+-- Trigger 2: Tự động cộng số lượng tồn kho khi có hóa đơn nhập hàng từ nhà cung cấp
+-- Đi đôi với Trigger 1 để hoàn thiện luồng quản lý tồn kho toàn diện[cite: 15].
+CREATE TRIGGER trg_CongTonKho_KhiNhap
+ON ImportOrderDetails
+AFTER INSERT
+AS
+BEGIN
+    UPDATE p
+    SET p.SoLuongTon = p.SoLuongTon + i.Quantity
+    FROM Products p
+    JOIN inserted i ON p.ProductID = i.ProductID;
+END;
+GO
