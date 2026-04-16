@@ -71,17 +71,11 @@ CREATE TABLE OrderDetails (
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
 );
-
-
-
-
-
 --Thêm Data
+
 USE QL_VanPhongPham;
 GO
-
-    
--- 1. INSERT NHÀ CUNG CẤP (20 dòng)
+-- 1. INSERT NHÀ CUNG CẤP 
 
 INSERT INTO Suppliers (SupplierID, SupplierName, Address, Phone) VALUES
 (1, N'Tập đoàn Thiên Long', N'KCN Tân Tạo, TP.HCM', '0281234567'),
@@ -104,8 +98,7 @@ INSERT INTO Suppliers (SupplierID, SupplierName, Address, Phone) VALUES
 (18, N'Bảng viết Tân Hà', N'Đan Phượng, Hà Nội', '0982223344'),
 (19, N'Keo dán Queen', N'Tân Phú, TP.HCM', '0973334455'),
 (20, N'Dụng cụ Deli', N'Thanh Xuân, Hà Nội', '0964445566');
-
--- 2. INSERT KHÁCH HÀNG (20 dòng)
+-- 2. INSERT KHÁCH HÀNG 
 
 INSERT INTO Customers (CustomerID, CustomerName, Address, Phone) VALUES
 (1, N'Trường THPT Lê Quý Đôn', N'Quận 3, TP.HCM', '0901000001'),
@@ -128,9 +121,7 @@ INSERT INTO Customers (CustomerID, CustomerName, Address, Phone) VALUES
 (18, N'Đài truyền hình VTV', N'Ba Đình, Hà Nội', '0901000018'),
 (19, N'Giao Hàng Tiết Kiệm', N'Cầu Giấy, Hà Nội', '0901000019'),
 (20, N'ĐH Kinh Tế Quốc Dân', N'Hai Bà Trưng, Hà Nội', '0901000020');
-
-
--- 3. INSERT SẢN PHẨM (20 dòng)
+-- 3. INSERT SẢN PHẨM 
 
 INSERT INTO Products (ProductID, ProductName, Unit, Price, NoiSanXuat, SoLuongTon) VALUES
 (1, N'Bút bi Thiên Long TL-027', N'Hộp', 60000, N'Việt Nam', 100),
@@ -153,9 +144,7 @@ INSERT INTO Products (ProductID, ProductName, Unit, Price, NoiSanXuat, SoLuongTo
 (18, N'Khay nhựa 3 tầng', N'Cái', 120000, N'Việt Nam', 15),
 (19, N'Tập 100tr Vĩnh Tiến', N'Lốc', 90000, N'Việt Nam', 50),
 (20, N'Mực in Canon 2900', N'Hộp', 350000, N'Trung Quốc', 12);
-
-
--- 4. INSERT HÓA ĐƠN NHẬP (20 dòng)
+-- 4. INSERT HÓA ĐƠN NHẬP 
 
 INSERT INTO ImportOrders (ImportID, SupplierID, ImportDate, TotalAmount) VALUES
 (1, 1, '2024-03-01', 0), (2, 2, '2024-03-02', 0), (3, 3, '2024-03-03', 0),
@@ -165,9 +154,7 @@ INSERT INTO ImportOrders (ImportID, SupplierID, ImportDate, TotalAmount) VALUES
 (13, 13, '2024-03-13', 0), (14, 14, '2024-03-14', 0), (15, 15, '2024-03-15', 0),
 (16, 16, '2024-03-16', 0), (17, 17, '2024-03-17', 0), (18, 18, '2024-03-18', 0),
 (19, 19, '2024-03-19', 0), (20, 20, '2024-03-20', 0);
-
-
--- 5. INSERT CHI TIẾT NHẬP (20 dòng)
+-- 5. INSERT CHI TIẾT NHẬP 
 
 INSERT INTO ImportOrderDetails (ImportDetailID, ImportID, ProductID, Quantity, ImportPrice) VALUES
 (1, 1, 1, 100, 45000), (2, 2, 7, 100, 30000), (3, 3, 16, 50, 55000),
@@ -177,9 +164,7 @@ INSERT INTO ImportOrderDetails (ImportDetailID, ImportID, ProductID, Quantity, I
 (13, 13, 6, 5, 520000), (14, 14, 5, 60, 15000), (15, 15, 10, 30, 20000),
 (16, 16, 20, 15, 250000), (17, 17, 19, 50, 70000), (18, 18, 18, 15, 90000),
 (19, 19, 11, 150, 7000), (20, 20, 13, 70, 12000);
-
-
--- 6. INSERT HÓA ĐƠN BÁN (20 dòng)
+-- 6. INSERT HÓA ĐƠN BÁN
 
 INSERT INTO Orders (OrderID, CustomerID, OrderDate, TotalAmount) VALUES
 (1, 1, '2024-04-01', 0), (2, 2, '2024-04-02', 0), (3, 3, '2024-04-03', 0),
@@ -189,9 +174,7 @@ INSERT INTO Orders (OrderID, CustomerID, OrderDate, TotalAmount) VALUES
 (13, 3, '2024-04-13', 0), (14, 4, '2024-04-14', 0), (15, 5, '2024-04-15', 0),
 (16, 6, '2024-04-16', 0), (17, 7, '2024-04-17', 0), (18, 8, '2024-04-18', 0),
 (19, 9, '2024-04-19', 0), (20, 10, '2024-04-20', 0);
-
-
--- 7. INSERT CHI TIẾT BÁN (20 dòng)
+-- 7. INSERT CHI TIẾT BÁN 
 
 INSERT INTO OrderDetails (OrderDetailID, OrderID, ProductID, Quantity, PriceAtPurchase) VALUES
 (1, 1, 1, 10, 60000), (2, 2, 6, 1, 650000), (3, 3, 2, 5, 75000),
@@ -202,10 +185,8 @@ INSERT INTO OrderDetails (OrderDetailID, OrderID, ProductID, Quantity, PriceAtPu
 (16, 16, 11, 20, 10000), (17, 17, 13, 5, 20000), (18, 18, 14, 2, 55000),
 (19, 19, 16, 5, 70000), (20, 20, 17, 10, 8000);
 GO
-
-
 --Truy vấn
--- 1. Tìm kiếm văn phòng phẩm theo nơi sản xuất (Ví dụ: Nhật Bản)
+-- 1. Tìm kiếm văn phòng phẩm theo nơi sản xuất
 SELECT ProductName, Unit, Price, NoiSanXuat
 FROM Products
 WHERE NoiSanXuat = N'Nhật Bản';
@@ -217,7 +198,6 @@ JOIN ImportOrders I ON S.SupplierID = I.SupplierID
 WHERE I.ImportDate = '2024-03-05';
 
 -- 3. Liệt kê các mặt hàng được cung cấp bởi một Nhà cung cấp (Ví dụ: Thiên Long)
--- Câu này dùng JOIN giữa 3 bảng: Suppliers -> ImportOrders -> ImportOrderDetails -> Products
 SELECT DISTINCT P.ProductName, S.SupplierName
 FROM Products P
 JOIN ImportOrderDetails ID ON P.ProductID = ID.ProductID
@@ -233,11 +213,6 @@ JOIN OrderDetails OD ON O.OrderID = OD.OrderID
 JOIN Products P ON OD.ProductID = P.ProductID;
 USE QL_VanPhongPham;
 GO
-
-/* =================================================================================
-   1. VIEW (TỐI THIỂU 03 VIEW)
-   Dùng để truy vấn các báo cáo thống kê phức tạp một cách nhanh chóng.
-================================================================================= */
 
 -- View 1: Báo cáo doanh số bán hàng theo tháng của từng loại văn phòng phẩm
 -- Phục vụ yêu cầu: "Theo dõi doanh số bán hàng theo tháng của từng loại văn phòng"[cite: 26].
@@ -282,11 +257,8 @@ JOIN OrderDetails od ON o.OrderID = od.OrderID
 GROUP BY c.CustomerID, c.CustomerName, MONTH(o.OrderDate), YEAR(o.OrderDate);
 GO
 
-
-/* =================================================================================
-   2. STORED PROCEDURE (TỐI THIỂU 03 STORED PROCEDURE)
-   Thực thi các nghiệp vụ cần tham số đầu vào.
-================================================================================= */
+--2. STORED PROCEDURE (TỐI THIỂU 03 STORED PROCEDURE)
+--Thực thi các nghiệp vụ cần tham số đầu vào.
 
 -- Procedure 1: Tìm kiếm thông tin văn phòng phẩm theo nơi sản xuất
 -- Phục vụ yêu cầu: "Tìm kiếm thông tin văn phòng phẩm theo nơi sản xuất"[cite: 21].
@@ -339,11 +311,8 @@ BEGIN
 END;
 GO
 
-
-/* =================================================================================
-   3. FUNCTION (TỐI THIỂU 03 FUNCTION)
-   Trả về các giá trị tính toán để có thể nhúng vào các câu lệnh SELECT khác.
-================================================================================= */
+--3. FUNCTION (TỐI THIỂU 03 FUNCTION)
+--Trả về các giá trị tính toán để có thể nhúng vào các câu lệnh SELECT khác.
 
 -- Function 1: Hàm tính tổng doanh thu bán hàng của cửa hàng trong một tháng/năm cụ thể
 CREATE FUNCTION fn_TongDoanhThuThang (@Thang INT, @Nam INT)
@@ -389,11 +358,8 @@ BEGIN
 END;
 GO
 
-
-/* =================================================================================
-   4. TRIGGER (TỐI THIỂU 02 TRIGGER)
-   Tự động hóa các nghiệp vụ đảm bảo tính toàn vẹn dữ liệu.
-================================================================================= */
+--4. TRIGGER (TỐI THIỂU 02 TRIGGER)
+--Tự động hóa các nghiệp vụ đảm bảo tính toàn vẹn dữ liệu.
 
 -- Trigger 1: Tự động trừ số lượng tồn kho khi có hóa đơn bán hàng mới
 -- Phục vụ yêu cầu: "Cửa hàng muốn thực hiện tự động khi một đơn hàng được bán ra số lượng sẽ được trừ tự động phục vụ việc tính tồn kho"[cite: 31].
